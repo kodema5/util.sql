@@ -1,0 +1,2 @@
+# util.sql
+utility functions
