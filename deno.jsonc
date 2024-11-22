@@ -6,6 +6,6 @@
 
         "dev": "web-dev test src/index.sql --watch",
 
-        "dump": "pg_dump -d web --no-comments --schema=util_ --schema=util --schema-only --no-owner -f mod.sql"
+        "dump": "pg_dump -d web --no-comments --schema=util_ --schema=util --schema-only --no-owner -f dump.sql"
     }
 }
