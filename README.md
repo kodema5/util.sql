@@ -1,2 +1,3 @@
 # util.sql
-utility functions
+
+various utility functions for development
