@@ -26,10 +26,9 @@ drop schema if exists util cascade;
 create schema if not exists util;
 set search_path=util,util_,public;
 
+\ir array.sql
 \ir iif.sql
-\ir is_empty.sql
+\ir json/index.sql
 \ir names.sql
-\ir null_if_empty.sql
-\ir clean.sql
 \ir to_ts.sql
 \ir console_log.sql

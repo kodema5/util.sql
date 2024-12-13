@@ -7,7 +7,7 @@
 -- @param {jsonb}
 -- @return {boolean} true if json/jsonb is null, "", [], {}
 --
-create function is_empty(jsonb)
+create function jsonb_is_empty(jsonb)
     returns boolean
     language sql
     set search_path from current
@@ -27,7 +27,7 @@ $$;
 -- @param {jsonb}
 -- @return {boolean} true if json/jsonb is null, "", [], {}
 --
-create function is_empty(json)
+create function json_is_empty(json)
     returns boolean
     language sql
     set search_path from current
@@ -41,4 +41,37 @@ as $$
     when json_typeof($1)='object' then (select count(1)=0 from json_object_keys($1))
     else false
     end;
+$$;
+
+
+-- returns null if empty jsonb
+-- @param {jsonb} value
+-- @return {jsonb} null if empty
+--
+create function jsonb_null_if_empty(jsonb)
+    returns jsonb
+    language sql
+    set search_path from current
+    immutable
+as $$
+    select case
+    when jsonb_is_empty($1) then null
+    else $1
+    end
+$$;
+
+-- returns null if empty json
+-- @param {json} value
+-- @return {json} null if empty
+--
+create function json_null_if_empty(json)
+    returns json
+    language sql
+    set search_path from current
+    immutable
+as $$
+    select case
+    when json_is_empty($1) then null
+    else $1
+    end
 $$;

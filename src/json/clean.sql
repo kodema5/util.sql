@@ -3,7 +3,7 @@
 -- @param {boolean} deep_ if to check recursively
 -- @return {jsonb} cleaned-up jsonb
 --
-create function clean(
+create function jsonb_clean(
     jsonb,
     deep_ boolean default false
 )
@@ -15,31 +15,31 @@ as $$
     select case
     when jsonb_typeof($1)='object'
         then (
-            select null_if_empty(
+            select jsonb_null_if_empty(
                 jsonb_object_agg(key, value)
             )
             from jsonb_each($1)
-            where not is_empty(
+            where not jsonb_is_empty(
                 case
-                when deep_ then clean(value, deep_)
+                when deep_ then jsonb_clean(value, deep_)
                 else value
                 end
             ))
 
     when jsonb_typeof($1)='array'
         then (
-            select null_if_empty(
+            select jsonb_null_if_empty(
                 jsonb_agg(value)
             )
             from jsonb_array_elements($1)
-            where not is_empty(
+            where not jsonb_is_empty(
                 case
-                when deep_ then clean(value, deep_)
+                when deep_ then jsonb_clean(value, deep_)
                 else value
                 end
             ))
 
-    else null_if_empty($1)
+    else jsonb_null_if_empty($1)
     end
 $$;
 
@@ -48,7 +48,7 @@ $$;
 -- @param {boolean} deep_ if to check recursively
 -- @return {json} cleaned-up json
 --
-create function clean(
+create function json_clean(
     json,
     deep_ boolean default false
 )
@@ -60,31 +60,31 @@ as $$
     select case
     when json_typeof($1)='object'
         then (
-            select null_if_empty(
+            select json_null_if_empty(
                 json_object_agg(key, value)
             )
             from json_each($1)
-            where not is_empty(
+            where not json_is_empty(
                 case
-                when deep_ then clean(value, deep_)
+                when deep_ then json_clean(value, deep_)
                 else value
                 end
             ))
 
     when json_typeof($1)='array'
         then (
-            select null_if_empty(
+            select json_null_if_empty(
                 json_agg(value)
             )
             from json_array_elements($1)
-            where not is_empty(
+            where not json_is_empty(
                 case
-                when deep_ then clean(value, deep_)
+                when deep_ then json_clean(value, deep_)
                 else value
                 end
             ))
 
-    else null_if_empty($1)
+    else json_null_if_empty($1)
     end
 $$;
 
@@ -97,39 +97,39 @@ $$;
     as $$
     begin
         return next ok(
-            is_empty(null::jsonb)
-            and is_empty('""'::jsonb)
-            and is_empty('[]'::jsonb)
-            and is_empty('{}'::jsonb)
+            jsonb_is_empty(null::jsonb)
+            and jsonb_is_empty('""'::jsonb)
+            and jsonb_is_empty('[]'::jsonb)
+            and jsonb_is_empty('{}'::jsonb)
             , 'checks jsonb empties');
 
         return next ok(
-            clean('{"a":null,"b":{},"c":"","d":[]}'::jsonb) is null
-            and clean('[null,{},"",[]]'::jsonb) is null
+            jsonb_clean('{"a":null,"b":{},"c":"","d":[]}'::jsonb) is null
+            and jsonb_clean('[null,{},"",[]]'::jsonb) is null
             , 'cleans jsonb object');
 
         return next ok(
-            clean('{"a":null,"b":{},"c":"","d":[null,{"a":null}]}'::jsonb, true) is null
-            and clean('[null,{},"",{"a":null},[]]'::jsonb, true) is null
+            jsonb_clean('{"a":null,"b":{},"c":"","d":[null,{"a":null}]}'::jsonb, true) is null
+            and jsonb_clean('[null,{},"",{"a":null},[]]'::jsonb, true) is null
             , 'deep cleans jsonb object');
 
 
         return next ok(
-            is_empty(null::json)
-            and is_empty('""'::json)
-            and is_empty('[]'::json)
-            and is_empty('{}'::json)
+            json_is_empty(null::json)
+            and json_is_empty('""'::json)
+            and json_is_empty('[]'::json)
+            and json_is_empty('{}'::json)
             , 'checks json empties');
 
 
         return next ok(
-            clean('{"a":null,"b":{},"c":"","d":[]}'::json) is null
-            and clean('[null,{},"",[]]'::json) is null
+            json_clean('{"a":null,"b":{},"c":"","d":[]}'::json) is null
+            and json_clean('[null,{},"",[]]'::json) is null
             , 'cleans json object');
 
         return next ok(
-            clean('{"a":null,"b":{},"c":"","d":[null,{"a":null}]}'::json, true) is null
-            and clean('[null,{},"",{"a":null},[]]'::json, true) is null
+            json_clean('{"a":null,"b":{},"c":"","d":[null,{"a":null}]}'::json, true) is null
+            and json_clean('[null,{},"",{"a":null},[]]'::json, true) is null
             , 'deep cleans json object');
 
     end;
